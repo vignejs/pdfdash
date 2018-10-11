@@ -97,7 +97,8 @@ app.layout = html.Div([
                                 marks={i: str(i) for i in range(0, 6)})
                             ], style={'height': '60px'}),
                   html.Label(id="rayliegh_mean",
-                             style={'height': '60px', 'display': 'inline-block', 'vertical-align': 'middle'})
+                             # style={'height': '60px', 'display': 'inline-block', 'vertical-align': 'middle'}
+                             )
                   ], className="six columns")
     ])
 
