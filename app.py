@@ -6,12 +6,21 @@ import plotly.graph_objs as go
 from scipy import stats
 from dash.dependencies import Input, Output
 
-app = dash.Dash()
-x = np.linspace(-20, 20, 1000)
-xr = np.linspace(0, 20, 1000)
-# pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(x - mu) ** 2 / (2 * sigma ** 2))
-# cdf = (1 + scipy.special.erf((x - mu) / np.sqrt(2 * sigma ** 2))) / 2
+external_stylesheets = [
+    # Normalize the CSS
+    "https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css",
+    # Fonts
+    "https://fonts.googleapis.com/css?family=Open+Sans|Roboto"
+    "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css",
+]
 
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+app.scripts.config.serve_locally = True
+
+x = np.linspace(-20, 20, 1000)
+
+xr = np.linspace(0, 20, 1000)
 
 trace0 = go.Scatter(
     x=x,
@@ -45,34 +54,54 @@ trace3 = go.Scatter(
     line=dict(color='#7FA6EE', width=3)
 )
 
-app.layout = html.Div(children=[
-    html.H2(children='Analysis App'),
-
+app.layout = html.Div([
+    # Banner display
     html.Div([
-        html.Div(dcc.Graph(animate=True, id='normal'), className="six columns"),
-        html.Div(dcc.Graph(animate=True, id='rayleigh'), className="six columns")
-    ], className="row"),
+        html.H2(
+            'Probablity Distribution Functions',
+            id='title'
+        ),
+        html.Img(
+            src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/logo/new-branding/dash-logo-by-plotly-stripe-inverted.png"
+        )
+    ], className="banner"),
+    html.Div([
+        html.Div([dcc.Graph(animate=True, id='normal'),
+                  html.Div([html.Label("Deviation \u03C3"),
+                            dcc.Slider(
+                                id="sigma",
+                                min=0,
+                                max=5,
+                                value=1,
+                                step=0.1,
+                                marks={i: str(i) for i in range(0, 6)}
+                            )], style={'height': '60px'}),
+                  html.Div([html.Label("Mean \u03BC"),
+                            dcc.Slider(
+                                id="mean",
+                                min=-10,
+                                max=10,
+                                value=0,
+                                step=None,
+                                marks={i: str(i) for i in range(-10, 11, 2)})
+                            ], style={'height': '60px'})
+                  ], className="six columns"),
+        html.Div([dcc.Graph(animate=True, id='rayleigh'),
+                  html.Div([html.Label("Scale factor \u03C3"),
+                            dcc.Slider(
+                                id="scale",
+                                min=0,
+                                max=5,
+                                value=1,
+                                step=0.1,
+                                marks={i: str(i) for i in range(0, 6)})
+                            ], style={'height': '60px'}),
+                  html.Label(id="rayliegh_mean",
+                             style={'height': '60px', 'display': 'inline-block', 'vertical-align': 'middle'})
+                  ], className="six columns")
+    ])
 
-    html.Div([html.Label("Deviation \u03C3"),
-              dcc.Slider(
-                  id="sigma",
-                  min=0,
-                  max=5,
-                  value=1,
-                  step=0.1,
-                  marks={i: str(i) for i in range(0, 6)}
-              )], style={'padding': '10px'}),
-
-    html.Div([html.Label("Mean \u03BC"),
-              dcc.Slider(
-                  id="mean",
-                  min=-10,
-                  max=10,
-                  value=0,
-                  step=None,
-                  marks={i: str(i) for i in range(-10, 11, 2)}
-              )], style={'padding': '10px'}),
-], className='container', style={'height': 'auto'})
+], className='container')
 
 
 @app.callback(
@@ -92,16 +121,25 @@ def update_figure_1(sigma, mean):
 
 @app.callback(
     Output('rayleigh', 'figure'),
-    [Input('sigma', 'value')])
-def update_figure_2(sigma):  # scale parameter
-    trace2['y'] = stats.rayleigh.pdf(xr, 0, sigma)
-    trace3['y'] = stats.rayleigh.cdf(xr, 0, sigma)
+    [Input('scale', 'value')])
+def update_figure_2(scale):  # scale parameter
+    trace2['y'] = stats.rayleigh.pdf(xr, 0, scale)
+    trace3['y'] = stats.rayleigh.cdf(xr, 0, scale)
     return {
         'data': [trace2, trace3],
         'layout': {
             'title': 'Rayleigh distribution'
         }
     }
+
+
+@app.callback(
+    Output('rayliegh_mean', 'children'),
+    [Input('scale', 'value')]
+)
+def rayliegh_mean(scale):
+    mean = stats.rayleigh.mean(scale=scale)
+    return "Mean: {:.3f}".format(mean)
 
 
 if __name__ == '__main__':

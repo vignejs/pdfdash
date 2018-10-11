@@ -1,1 +1,1 @@
-Analysis of and normal and rayliegh distributions
+Analysis of normal and rayliegh distributions
