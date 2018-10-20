@@ -96,9 +96,16 @@ app.layout = html.Div([
                                 step=0.1,
                                 marks={i: str(i) for i in range(0, 6)})
                             ], style={'height': '60px'}),
-                  html.Label(id="rayliegh_mean",
-                             # style={'height': '60px', 'display': 'inline-block', 'vertical-align': 'middle'}
-                             )
+                  html.Label(id="rayleigh_mean"
+                             ),
+                  html.Label(id="rayleigh_skew",
+                             children=[
+                                 "Skewness: {:.4f}".format(stats.rayleigh.stats(moments='s'))
+                             ]),
+                  html.Label(id="rayleigh_kurtosis",
+                             children=[
+                                 "Kurtosis: {:.4f}".format(stats.rayleigh.stats(moments='k'))
+                             ])
                   ], className="six columns")
     ])
 
@@ -135,12 +142,12 @@ def update_figure_2(scale):  # scale parameter
 
 
 @app.callback(
-    Output('rayliegh_mean', 'children'),
+    Output('rayleigh_mean', 'children'),
     [Input('scale', 'value')]
 )
 def rayliegh_mean(scale):
     mean = stats.rayleigh.mean(scale=scale)
-    return "Mean: {:.3f}".format(mean)
+    return "Mean: {:.4f}".format(mean)
 
 
 if __name__ == '__main__':
