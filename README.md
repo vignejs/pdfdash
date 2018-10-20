@@ -23,6 +23,9 @@ Run the app
 python app.py
 ```
 
+## Central Limit Theorem
+You can see jupyter notebook that proves central limit theorem
+
 ## Libraries
 * [Dash](https://dash.plot.ly/) - Flask based server and interactive components
 * [Plotly Python](https://plot.ly/python/) - Used to create the interactive plots
